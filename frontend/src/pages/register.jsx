@@ -1,4 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+
+
+
 function register() {
     const [formData, setFormData] = useState({
         'username': "",
@@ -7,23 +12,48 @@ function register() {
         'password2': "",
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState(null);
+    const [error, setError] = useState(null);
+
+
 
     const handleSubmit=async(e) => {
         e.preventDefault()
         setIsLoading(true)
-        if (isLoading) {
-            console.log(formData)
+        try {
+            const response = await axios.post("http://127.0.0.1:8000/api/register/", formData)
+            setSuccessMessage("تم تسجيل الحساب بنجاح")
+            setError(null)
+            console.log("success", response.data)
+        } catch (error) {
+            if (error.response && error.response.data) {
+                Object.keys(error.response.data).forEach(field => {
+                    const errorMessages = error.response.data[field]
+                    if (errorMessages && errorMessages.length > 0) {
+                        setError(errorMessages[0])
+                    }
+                })
+            }
+            console.log("error during loading", error.response?.data)
         }
-    }    
-    const handleChange = (e) => { setFormData({ ...formData, [e.target.name]: e.target.value }) }
+        finally { setIsLoading(false) }
+
+    }
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value })
+        // console.log(formData)
+    }
     return (
-      <>
-          <form onSubmit={handleSubmit}>
+        <>
+            {error && <p>{error}</p>}
+            {successMessage && <p>{successMessage}</p>}
+            
+          <form>
           <input placeholder='اسم المستخدم' onChange={handleChange} type='text' name='username' value={formData.username}></input>
           <input placeholder='الايميل' onChange={handleChange}  type='text' name='email' value={formData.email}></input>
           <input placeholder='كلمة المرور' onChange={handleChange}  type='password' name='password1' value={formData.password1}></input>
           <input placeholder='تاكيد كلمة المرور' onChange={handleChange} type='password' name='password2' value={formData.password2}></input>
-          <button type='submit' disabled={isLoading}>{isLoading?".....جارى التحميل":"تسجيل المستخدم" }</button>
+          <button type='submit' disabled={isLoading} onClick={handleSubmit}>{isLoading?".....جارى التحميل":"تسجيل المستخدم" }</button>
           </form>  
       </>
   )
