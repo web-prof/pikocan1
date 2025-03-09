@@ -1,8 +1,19 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+
 
 function home() {
+  const [username,setUsername]=useState("")
+  const [islogedin, setIsLogedin] = useState(false)
+  useEffect(() => { }
+    
+    
+    
+    , [])
   return (
-    <div>home</div>
+    {islogedin? (<div>hi {username} thanks for joining</div>):(<p>please log in</p>)}
+    
   )
 }
 
